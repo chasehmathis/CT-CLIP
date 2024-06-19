@@ -607,6 +607,8 @@ class CTCLIP(nn.Module):
         aug_text = None,                # augmented text (for multiview)
         aug_image = None                # augmented image (for multiview)
     ):
+        import pdb
+        pdb.set_trace()
         b, device = text.input_ids.shape[0], device
 
         # derive text mask
@@ -696,7 +698,7 @@ class CTCLIP(nn.Module):
             freeze = freeze_image_encoder
         )"""
 
-        enc_image= self.visual_transformer(image, return_encoded_tokens=True)
+        enc_image= self.visual_transformer(image, True)
 
         #print("This is visual encoding")
         print(enc_image.shape)
