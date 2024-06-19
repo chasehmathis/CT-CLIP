@@ -367,6 +367,7 @@ class VisionTransformer(nn.Module):
         x,
         keep_all_patches = False
     ):
+
         device = x.device
 
         x = self.to_tokens(x)
@@ -662,9 +663,9 @@ class CTCLIP(nn.Module):
         if not self.text_encode_without_mask:
             text_args = (*text_args, text_mask)
 
-        print(text.input_ids.shape)
+        #print(text.input_ids.shape)
 
-        text_embeddings = self.text_transformer(text.input_ids, attention_mask = text.attention_mask )
+        text_embeddings = self.text_transformer(text.input_ids, text.attention_mask)
         enc_text = text_embeddings[0]
         print(enc_text.shape)
 
@@ -701,7 +702,7 @@ class CTCLIP(nn.Module):
         print(enc_image.shape)
         global h_r, w_r, z_r
         h_r, w_r, z_r = enc_image.shape[1], enc_image.shape[2], enc_image.shape[3]
-        enc_image = enc_image.view(enc_image.shape[0], -1)
+        # enc_image = enc_image.view(enc_image.shape[0], -1)
         print(enc_image.shape)
 
         # early return of encodings, if needed (for DALL-E2)
@@ -722,7 +723,7 @@ class CTCLIP(nn.Module):
 
         # project to latents
         #text_embeds = text_embeds.view(text_embeds.shape[0], -1)
-
+        image_embeds = image_embeds[:,0,:]
         text_embeds = text_embeds[:,0,:]
 
         #text_embeds = torch.mean(text_embeds, dim=1)
