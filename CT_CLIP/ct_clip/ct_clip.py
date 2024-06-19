@@ -342,12 +342,14 @@ class VisionTransformer(nn.Module):
         **kwargs
     ):
         super().__init__()
-        assert image_size % patch_size == 0, 'Image dimensions must be divisible by the patch size.'
-        num_patches = (image_size // patch_size) ** 2
-        patch_dim = channels * patch_size ** 2
+        assert image_size[0] % patch_size == 0, 'Image dimensions must be divisible by the patch size.'
+        patch_size_z = 2 # will do about 20 slices
+        assert image_size[1] % patch_size_z == 0
+        num_patches = (image_size[0] // patch_size) ** 2 * (image_size[1] // patch_size_z)
 
+        patch_dim = channels * patch_size ** 2 * patch_size_z
         self.to_tokens = nn.Sequential(
-            Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = patch_size, p2 = patch_size),
+            Rearrange('b c (d p1) (h p2) (w p3) -> b (d h w) (p1 p2 p3 c)', p1=patch_size_z, p2=patch_size, p3=patch_size),
             nn.Linear(patch_dim, dim)
         )
 
@@ -358,7 +360,7 @@ class VisionTransformer(nn.Module):
 
         self.to_cls_tokens = nn.Sequential(
             Reduce('b n d -> b d', 'mean'),
-            nn.Linear(dim, dim, bias = False),
+            nn.Linear(dim, dim, bias=False),
             Rearrange('b d -> b 1 d')
         )
 
@@ -369,7 +371,8 @@ class VisionTransformer(nn.Module):
     ):
 
         device = x.device
-
+        import pdb
+        pdb.set_trace()
         x = self.to_tokens(x)
         b, n, _ = x.shape
 
@@ -703,7 +706,7 @@ class CTCLIP(nn.Module):
         #print("This is visual encoding")
         print(enc_image.shape)
         global h_r, w_r, z_r
-        h_r, w_r, z_r = enc_image.shape[1], enc_image.shape[2], enc_image.shape[3]
+        #h_r, w_r, z_r = enc_image.shape[1], enc_image.shape[2], enc_image.shape[3]
         # enc_image = enc_image.view(enc_image.shape[0], -1)
         print(enc_image.shape)
 
